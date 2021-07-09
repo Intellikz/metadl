@@ -109,54 +109,23 @@ class MyMetaLearner(MetaLearner):
         self.query_batch_size = query_batch_size
         self.img_size = img_size
         self.N_ways = N_ways
+        self.device = set_device()
 
         self.baselearner_args = {
             "dev": set_device(),
             "train_classes": self.N_ways,
             "eval_classes": self.N_ways,
             "criterion":nn.CrossEntropyLoss(),
-            "num_blocks": 4
+            "num_blocks": 4,
+            "img_size": (1, 3, self.img_size, self.img_size)
         }
 
         TURTLE_CONF["baselearner_args"] = self.baselearner_args
-
-
-
-
-
-
-
-
-
-        self.meta_learner = conv_net(self.N_ways, img_size)
-        
         torch.manual_seed(1234)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(1234)
         np.random.seed(1234)
-
-        self.device = torch.device('cuda:1')
-        self.meta_learner.to(device=self.device)
-        self. meta_opt = optim.Adam(self.meta_learner.parameters(), lr=1e-3)
-
-
-        # Writer 
-        #self.current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        #self.train_log_dir = ('logs/gradient_tape/' + 
-        #                    self.current_time +
-        #                    '/train')
-        #self.test_log_dir = ('logs/gradient_tape/' +
-        #                    self.current_time +
-        #                    '/test')
-        #self.train_summary_writer = tf.summary.create_file_writer(
-        #                            self.train_log_dir)
-#
-        #self.train_loss = tf.keras.metrics.Mean(name = 'train_loss')
-        #self.train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
-        #                    name = 'train_accuracy')
-        #self.test_loss = tf.keras.metrics.Mean(name = 'test_loss')
-        #self.test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
-        #                    name = 'test_accuracy')
+        self.turtle = Turtle(**TURTLE_CONF)
 
 
     def dataloader(self, dataset_episodic):
@@ -225,6 +194,15 @@ class MyMetaLearner(MetaLearner):
                 tmp_learner = MyLearner(self.meta_learner)
                 tmp_learner.save(os.path.join('trained_models/feedback/maml_torch/models', 'epoch{}'.format(epoch)))
             self.train(mtrain_iterator, self.meta_learner, self.device, self.meta_opt, epoch, log)
+            
+            batch = next(mtrain_iterator)
+            batch = batch[0]
+            batch = self.process_task(batch)
+            x_spt, y_spt, x_qry, y_qry = [x.to(device=self.device) for x in batch]
+            print(x_spt.size(), y_spt.size(), x_qry.size(), y_qry.size())
+
+
+
 
 
         return MyLearner(self.meta_learner)

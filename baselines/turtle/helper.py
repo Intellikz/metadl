@@ -147,7 +147,7 @@ class ConvX(nn.Module):
         Freeze all hidden layers
     """
     
-    def __init__(self, dev, train_classes, eval_classes, criterion=nn.CrossEntropyLoss(), num_blocks=4):
+    def __init__(self, dev, train_classes, eval_classes, criterion=nn.CrossEntropyLoss(), num_blocks=4, img_size=(1,3,84,84)):
         """Initialize the conv network
 
         Parameters
@@ -170,7 +170,7 @@ class ConvX(nn.Module):
         self.train_classes = train_classes
         self.eval_classes = eval_classes
 
-        rnd_input = torch.rand((1,3,84,84))
+        rnd_input = torch.rand(img_size)
 
         d = OrderedDict([])
         for i in range(self.num_blocks):
