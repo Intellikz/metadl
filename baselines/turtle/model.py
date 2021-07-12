@@ -195,6 +195,12 @@ class MyMetaLearner(MetaLearner):
         #self.dataloader(meta_train_dataset)
 
         log = []
+
+        while True:
+            batch = next(mval_iterator)
+            
+        print("Got out of the infinite loop. ")
+        
         for epoch in range(self.meta_iterations):
             if epoch % 20 == 0 : 
                 # Save something
