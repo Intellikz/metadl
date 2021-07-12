@@ -1,6 +1,6 @@
 import pickle
 
-from .modules.utils import get_init_score_and_operator
+from modules.utils import get_init_score_and_operator
 
 class Algorithm:
     """Superclass for meta-learning algorithms
