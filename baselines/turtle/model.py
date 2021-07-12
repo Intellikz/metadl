@@ -194,8 +194,10 @@ class MyMetaLearner(MetaLearner):
         log = []
         for epoch in range(self.meta_iterations):
             if epoch % 20 == 0 : 
-                tmp_learner = MyLearner(self.meta_learner)
-                tmp_learner.save(os.path.join('trained_models/feedback/maml_torch/models', 'epoch{}'.format(epoch)))
+                # Save something
+                pass
+                #tmp_learner = MyLearner(self.meta_learner)
+                #tmp_learner.save(os.path.join('trained_models/feedback/maml_torch/models', 'epoch{}'.format(epoch)))
             self.train(mtrain_iterator, self.meta_learner, self.device, self.meta_opt, epoch, log)
             
             batch = next(mtrain_iterator)
@@ -203,7 +205,7 @@ class MyMetaLearner(MetaLearner):
             batch = self.process_task(batch)
             x_spt, y_spt, x_qry, y_qry = [x.to(device=self.device) for x in batch]
             print(x_spt.size(), y_spt.size(), x_qry.size(), y_qry.size())
-
+            import sys; sys.exit()
 
 
 
