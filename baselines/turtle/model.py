@@ -175,7 +175,8 @@ class MyMetaLearner(MetaLearner):
         # Load dataset in db
         meta_train_dataset = meta_dataset_generator.meta_train_pipeline
         meta_valid_dataset = meta_dataset_generator.meta_valid_pipeline
-        meta_train_dataset = meta_train_dataset.batch(32)
+        meta_train_dataset = meta_train_dataset.batch(1)
+        meta_valid_dataset = meta_valid_dataset.batch(1)
         mtrain_iterator = meta_train_dataset.__iter__()
         mval_iterator = meta_valid_dataset.__iter__()
 
