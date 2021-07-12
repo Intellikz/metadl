@@ -177,6 +177,8 @@ class MyMetaLearner(MetaLearner):
         meta_valid_dataset = meta_dataset_generator.meta_valid_pipeline
         meta_train_dataset = meta_train_dataset.batch(32)
         mtrain_iterator = meta_train_dataset.__iter__()
+        mval_iterator = meta_valid_dataset.__iter__()
+
 
         #batch = next(mtrain_iterator)
         #logging.info('len batch : {}'.format(len(batch)))
@@ -200,7 +202,7 @@ class MyMetaLearner(MetaLearner):
                 #tmp_learner.save(os.path.join('trained_models/feedback/maml_torch/models', 'epoch{}'.format(epoch)))
             #self.train(mtrain_iterator, self.meta_learner, self.device, self.meta_opt, epoch, log)
             
-            batch = next(mtrain_iterator)
+            batch = next(mval_iterator)
             batch = batch[0]
             batch = self.process_task(batch)
             x_spt, y_spt, x_qry, y_qry = [x[0].to(device=self.device) for x in batch]
@@ -220,62 +222,15 @@ class MyMetaLearner(MetaLearner):
         for batch_idx in range(n_train_iter):
             start_time = time.time()
             # Sample a batch of support and query images and labels.
-            #x_spt, y_spt, x_qry, y_qry = db.next()
             batch = next(db)
             batch = batch[0]
             batch = self.process_task(batch)
-            x_spt, y_spt, x_qry, y_qry = [x.to(device=self.device) for x in batch]
-            
-            #task_num = self.meta_batch_size
-            task_num, setsz, c_, h, w = x_spt.size()
-            #logging.info('Task num: {} | Setsz: {} | c_ : {} | h : {} | w : {}'.format(task_num, setsz, c_, h, w))
-            querysz = x_qry.size(1)
+            x_spt, y_spt, x_qry, y_qry = [x[0].to(device=self.device) for x in batch]
 
-            #logging.info(f'sup_x : {x_spt[0].shape} | sup_y : {y_spt[0].shape} | qry_x : {x_qry[0].shape} | qry_y : {y_qry[0].shape}')
-            # TODO: Maybe pull this out into a separate module so it
-            # doesn't have to be duplicated between `train` and `test`?
+            # Call train() function of TURTLE object
+            self.turtle.train(x_spt, y_spt, x_qry, y_qry)
 
-            # Initialize the inner optimizer to adapt the parameters to
-            # the support set.
-            n_inner_iter = 5
-            inner_opt = torch.optim.SGD(net.parameters(), lr=1e-1)
 
-            qry_losses = []
-            qry_accs = []
-            meta_opt.zero_grad()
-            for i in range(task_num):
-                with higher.innerloop_ctx(
-                    net, inner_opt, copy_initial_weights=False
-                ) as (fnet, diffopt):
-                    # Optimize the likelihood of the support set by taking
-                    # gradient steps w.r.t. the model's parameters.
-                    # This adapts the model's meta-parameters to the task.
-                    # higher is able to automatically keep copies of
-                    # your network's parameters as they are being updated.
-                    for _ in range(n_inner_iter):
-                        spt_logits = fnet(x_spt[i])
-                        spt_loss = F.cross_entropy(spt_logits, y_spt[i])
-                        diffopt.step(spt_loss)
-
-                    # The final set of adapted parameters will induce some
-                    # final loss and accuracy on the query dataset.
-                    # These will be used to update the model's meta-parameters.
-                    qry_logits = fnet(x_qry[i])
-                    qry_loss = F.cross_entropy(qry_logits, y_qry[i])
-                    qry_losses.append(qry_loss.detach())
-                    qry_acc = (qry_logits.argmax(
-                        dim=1) == y_qry[i]).sum().item() / querysz
-                    
-                    qry_accs.append(qry_acc)
-
-                    # Update the model's meta-parameters to optimize the query
-                    # losses across all of the tasks sampled in this batch.
-                    # This unrolls through the gradient steps.
-                    qry_loss.backward()
-
-            meta_opt.step()
-            qry_losses = sum(qry_losses) / task_num
-            qry_accs = 100. * sum(qry_accs) / task_num
             i = epoch + float(batch_idx) / n_train_iter
             iter_time = time.time() - start_time
             if batch_idx % 4 == 0:
