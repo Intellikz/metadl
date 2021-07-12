@@ -5,6 +5,26 @@ import contextlib
 import math
 import numpy as np
 
+def accuracy(y_pred, y):
+    """Computes accuracy of predictions
+    
+    Compute the ratio of correct predictions on the true labels y.
+    
+    Parameters
+    ----------
+    y_pred : torch.Tensor
+        Tensor of label predictions
+    y_pred : torch.Tensor
+        Tensor of ground-truth labels 
+    
+    Returns
+    ----------
+    accuracy
+        Float accuracy score in [0,1]
+    """
+    
+    return ((y_pred == y).float().sum()/len(y)).item()
+
 def create_grads_shell(model):
     """ Create list of gradients associated to each trainable layer in model.
     
