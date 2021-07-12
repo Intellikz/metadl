@@ -1,10 +1,10 @@
 import torch
 import numpy as np
 
-from .algorithm import Algorithm
-from .shell import MetaLearner, get_init_info, get_fast_weights,\
+from algorithm import Algorithm
+from shell import MetaLearner, get_init_info, get_fast_weights,\
                            INP_TO_CODE, HIST_TO_CODE, Input, History
-from .utils import put_on_device, get_init_score_and_operator, accuracy, get_params
+from utils import put_on_device, get_init_score_and_operator, accuracy, get_params
 
 
 
