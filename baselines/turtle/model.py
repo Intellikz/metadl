@@ -203,7 +203,7 @@ class MyMetaLearner(MetaLearner):
             batch = next(mtrain_iterator)
             batch = batch[0]
             batch = self.process_task(batch)
-            x_spt, y_spt, x_qry, y_qry = [x.to(device=self.device) for x in batch]
+            x_spt, y_spt, x_qry, y_qry = [x[0].to(device=self.device) for x in batch]
             print(x_spt.size(), y_spt.size(), x_qry.size(), y_qry.size())
             print(self.meta_iterations, self.meta_batch_size, self.support_batch_size, self.query_batch_size, self.N_ways)
             import sys; sys.exit()
