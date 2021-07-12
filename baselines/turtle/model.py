@@ -122,6 +122,8 @@ class MyMetaLearner(MetaLearner):
         }
 
         TURTLE_CONF["baselearner_args"] = self.baselearner_args
+        TURTLE_CONF["train_batch_size"] = self.N_ways * self.support_batch_size
+        TURTLE_CONF["test_batch_size"] = self.N_ways * self.query_batch_size
         torch.manual_seed(1234)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(1234)
