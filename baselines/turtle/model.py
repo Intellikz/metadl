@@ -198,7 +198,7 @@ class MyMetaLearner(MetaLearner):
                 pass
                 #tmp_learner = MyLearner(self.meta_learner)
                 #tmp_learner.save(os.path.join('trained_models/feedback/maml_torch/models', 'epoch{}'.format(epoch)))
-            self.train(mtrain_iterator, self.meta_learner, self.device, self.meta_opt, epoch, log)
+            #self.train(mtrain_iterator, self.meta_learner, self.device, self.meta_opt, epoch, log)
             
             batch = next(mtrain_iterator)
             batch = batch[0]
