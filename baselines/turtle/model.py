@@ -66,7 +66,7 @@ TURTLE_CONF = {
     "time_input": False,
     "decouple": None,
     "input_type": "raw_grads",
-    "second_order": False,
+    "second_order": True,
     "layer_wise": False,
     "param_lr": True,
     "history": "grads",
