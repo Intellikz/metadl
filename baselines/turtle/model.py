@@ -280,7 +280,6 @@ class MyLearner(Learner):
             predictor : An instance of MyPredictor that is initilialized with 
                 the fine-tuned learner's weights in this case.
         """
-        self.learner.train()
         for images, labels in dataset_train:
             images, labels = self.process_task(images, labels)
             print(images.size(), labels.size())
