@@ -228,7 +228,7 @@ class Turtle(Algorithm):
         new_H = self.beta * H + (1 - self.beta) * new
         return new_H
 
-    def _deploy(self, train_x, train_y, test_x, test_y):
+    def _deploy(self, train_x, train_y, test_x, test_y, return_network=False):
         """Run TURTLE on a single task to get the loss on the query set
         
         1. Evaluate the base-learner loss and gradients on the support set (train_x, train_y)
@@ -302,6 +302,9 @@ class Turtle(Algorithm):
             fast_weights = get_fast_weights(updates=updates, 
                                            initialization=fast_weights)
 
+
+        if return_network:
+            return self.baselearner, fast_weights
         # Get and return performance on query set
         test_preds = self.baselearner.forward_weights(test_x, fast_weights)
         test_loss = self.baselearner.criterion(test_preds, test_y)
@@ -397,7 +400,7 @@ class Turtle(Algorithm):
 
                 self.metasearch = False
         
-    def evaluate(self, train_x, train_y, test_x, test_y):
+    def evaluate(self, train_x, train_y, test_x, test_y, return_network=False):
         """Evaluate on a given task
         
         Use the support set (train_x, train_y) to compute weight updates
@@ -430,7 +433,10 @@ class Turtle(Algorithm):
         #                                     test_x, test_y])
 
         # Deploy Turtle on task to compute test loss
-        test_loss, preds = self._deploy(train_x, train_y, test_x, test_y)
+        if return_network:
+            return self._deploy(train_x, train_y, test_x, test_y, return_network)
+        
+        test_loss, preds = self._deploy(train_x, train_y, test_x, test_y, return_network)
             
         # If our objective is to minimize, return the loss,
         # else the accuracy

@@ -203,8 +203,9 @@ class MyMetaLearner(MetaLearner):
             batch = self.process_task(batch)
             x_spt, y_spt, x_qry, y_qry = [x[0].to(device=self.device) for x in batch]
             self.turtle.train(x_spt, y_spt, x_qry, y_qry)
+            break
 
-        return MyLearner(self.turtle)
+        return MyLearner(self.turtle, self.device)
 
 @gin.configurable
 class MyLearner(Learner):
@@ -212,10 +213,8 @@ class MyLearner(Learner):
     methods.
     """
     def __init__(self, 
-                neural_net = None,
-                num_epochs=3,
-                lr=0.1,
-                img_size=32):
+                turtle,
+                device):
         """
         Args:
             neural_net : a keras.Sequential object. A neural network model to 
@@ -228,14 +227,8 @@ class MyLearner(Learner):
                         (img_size,img_size,3)
         """
         super().__init__()
-        if neural_net == None :
-            self.learner = conv_net(5, img_size=img_size)
-        else : 
-            self.learner = neural_net
-
-        # Learning procedure parameters
-        self.optimizer = torch.optim.SGD(self.learner.parameters(), lr=1e-1) # inner opt
-        self.n_inner_iter = num_epochs
+        self.device = device
+        self.turtle = turtle
 
     def __call__(self, imgs):
         return self.learner(imgs)
@@ -262,6 +255,13 @@ class MyLearner(Learner):
         self.learner.train()
         for images, labels in dataset_train:
             images, labels = self.process_task(images, labels)
+            print(images.size(), labels.size())
+            import sys; sys.exit()
+            
+            
+            
+            
+            
             with higher.innerloop_ctx(self.learner, self.optimizer, track_higher_grads=False) as (fnet, diffopt):
             # Optimize the likelihood of the support set by taking
             # gradient steps w.r.t. the model's parameters.
