@@ -108,10 +108,10 @@ class MyMetaLearner(MetaLearner):
         self.query_batch_size = query_batch_size
         self.img_size = img_size
         self.N_ways = N_ways
-        self.device = set_device()
+        self.device = TURTLE_CONF["dev"]
 
         self.baselearner_args = {
-            "dev": set_device(),
+            "dev": self.device,
             "train_classes": self.N_ways,
             "eval_classes": self.N_ways,
             "criterion":nn.CrossEntropyLoss(),
@@ -237,11 +237,11 @@ class MyLearner(Learner):
         self.query_batch_size = query_batch_size
         self.img_size = img_size
         self.N_ways = N_ways
-        self.device = set_device()
+        self.device = TURTLE_CONF["dev"]
         
         if turtle == None:
             self.baselearner_args = {
-            "dev": set_device(),
+            "dev": self.device,
             "train_classes": self.N_ways,
             "eval_classes": self.N_ways,
             "criterion":nn.CrossEntropyLoss(),
