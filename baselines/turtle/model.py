@@ -280,6 +280,7 @@ class MyLearner(Learner):
         """
         for images, labels in dataset_train:
             images, labels = self.process_task(images, labels)
+            images, labels = images.to(self.device), labels.to(self.device)
             network, parameters = self.turtle.evaluate(images, labels, None, None, return_network=True)
             predictor = MyPredictor(network, parameters)
             break
@@ -331,6 +332,7 @@ class MyPredictor(Predictor):
         super().__init__()
         self.network = network
         self.parameters = [x.clone().detach() for x in parameters]
+        self.device = self.parameters[0].device
 
     def process_imgs(self, images):
         to_torch_imgs = lambda a: torch.from_numpy(np.transpose(a.numpy(), (0, 3, 1, 2)))
@@ -360,7 +362,7 @@ class MyPredictor(Predictor):
         """
         self.network.eval()
         for images in dataset_test:
-            images = self.process_imgs(images[0])
+            images = self.process_imgs(images[0]).to(self.device)
             qry_logits = self.network.forward_weights(images, self.parameters).detach()
         return qry_logits
 
