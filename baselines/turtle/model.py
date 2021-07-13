@@ -331,7 +331,7 @@ class MyPredictor(Predictor):
         """
         super().__init__()
         self.network = network
-        self.parameters = [x.clone().detach() for x in parameters]
+        self.parameters = parameters
         self.device = self.parameters[0].device
 
     def process_imgs(self, images):
@@ -363,7 +363,8 @@ class MyPredictor(Predictor):
         self.network.eval()
         for images in dataset_test:
             images = self.process_imgs(images[0]).to(self.device)
-            qry_logits = self.network.forward_weights(images, self.parameters).detach()
+            with torch.no_grad():
+                qry_logits = self.network.forward_weights(images, self.parameters)
         return qry_logits
 
 
