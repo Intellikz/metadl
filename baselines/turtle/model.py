@@ -286,22 +286,6 @@ class MyLearner(Learner):
             predictor = MyPredictor(network, parameters)
             break
         return predictor
-            
-            
-            
-            
-            with higher.innerloop_ctx(self.learner, self.optimizer, track_higher_grads=False) as (fnet, diffopt):
-            # Optimize the likelihood of the support set by taking
-            # gradient steps w.r.t. the model's parameters.
-            # This adapts the model's meta-parameters to the task.
-                for _ in range(self.n_inner_iter):
-                    spt_logits = fnet(images)
-                    spt_loss = F.cross_entropy(spt_logits, labels)
-                    diffopt.step(spt_loss)
-
-                
-            break
-        return predictor
 
     def load(self, model_dir):
         """Loads the learner model from a pickle file.
