@@ -282,9 +282,10 @@ class MyLearner(Learner):
         """
         for images, labels in dataset_train:
             images, labels = self.process_task(images, labels)
-            print(images.size(), labels.size())
-            import sys; sys.exit()
-            
+            network, parameters = self.turtle.evaluate(images, labels, None, None, return_network=True)
+            predictor = MyPredictor(network, parameters)
+            break
+        return predictor
             
             
             
@@ -298,7 +299,7 @@ class MyLearner(Learner):
                     spt_loss = F.cross_entropy(spt_logits, labels)
                     diffopt.step(spt_loss)
 
-                predictor = MyPredictor(fnet)
+                
             break
         return predictor
 
@@ -327,8 +328,6 @@ class MyLearner(Learner):
 
         if(os.path.isdir(model_dir) != True):
             os.mkdir(model_dir)
-            #raise ValueError(('The model directory provided is invalid. Please'
-            #    + ' check that its path is valid.'))
 
         ckpt_file = os.path.join(model_dir, 'learner.pt')
         self.turtle.store_file(ckpt_file)
@@ -340,14 +339,16 @@ class MyPredictor(Predictor):
     meta-test time.
     """
     def __init__(self,
-                 learner):
+                 network,
+                 parameters):
         """
         Args:
             learner : a MyLearner object that encapsulates the fine-tuned 
                 neural network.
         """
         super().__init__()
-        self.learner = learner
+        self.network = network
+        self.parameters = [x.clone().detach() for x in parameters]
 
     def process_imgs(self, images):
         to_torch_imgs = lambda a: torch.from_numpy(np.transpose(a.numpy(), (0, 3, 1, 2)))
@@ -375,12 +376,10 @@ class MyPredictor(Predictor):
 
         Note : In the challenge N_ways = 5 at meta-test time.
         """
-        self.learner.eval()
+        self.network.eval()
         for images in dataset_test:
-            #logging.info('Images shape : {}'.format(images))
             images = self.process_imgs(images[0])
-
-            qry_logits = self.learner(images).detach()
+            qry_logits = self.network.forward_weights(images, self.parameters).detach()
         return qry_logits
 
 
