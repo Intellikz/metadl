@@ -334,10 +334,10 @@ class Turtle(Algorithm):
         self.task_counter += 1
         self.dcounter += 1
         # Put all tensors on right device
-        train_x, train_y, test_x, test_y = put_on_device(
-                                            self.dev,
-                                            [train_x, train_y,
-                                            test_x, test_y])
+        # train_x, train_y, test_x, test_y = put_on_device(
+        #                                     self.dev,
+        #                                     [train_x, train_y,
+        #                                     test_x, test_y])
         
         # Deploy TURTLE on task to compute test loss
         test_loss, _ = self._deploy(train_x, train_y, test_x, test_y)
@@ -424,10 +424,10 @@ class Turtle(Algorithm):
         
         self.baselearner.eval()
         # Put all tensors on right device
-        train_x, train_y, test_x, test_y = put_on_device(
-                                            self.dev,
-                                            [train_x, train_y,
-                                            test_x, test_y])
+        # train_x, train_y, test_x, test_y = put_on_device(
+        #                                     self.dev,
+        #                                     [train_x, train_y,
+        #                                     test_x, test_y])
 
         # Deploy Turtle on task to compute test loss
         test_loss, preds = self._deploy(train_x, train_y, test_x, test_y)

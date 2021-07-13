@@ -181,79 +181,30 @@ class MyMetaLearner(MetaLearner):
         mval_iterator = meta_valid_dataset.__iter__()
 
 
-        #batch = next(mtrain_iterator)
-        #logging.info('len batch : {}'.format(len(batch)))
-        #batch_1 = batch[0]
-        #logging.info('len batch 1: {}'.format(len(batch_1)))
-        #batch_1 = self.process_task(batch_1)
-        #data_support, labels_support, data_query, labels_query = [x.to(device=self.device) for x in batch_1]
-        #logging.info('Supp imgs: {} | Supp labs : {} | Query imgs : {} | Query labs \n \n'.format(data_support.shape, labels_support.shape, data_query.shape, labels_query.shape))
-
-        
-        #logging.info('Batch :  \n {}'.format(batch))
-        
-        #self.dataloader(meta_train_dataset)
-
         log = []
+        start_time = time.time()
 
-        while True:
-            batch = next(mval_iterator)
+        for meta_iter in range(self.meta_iterations):
+            if meta_iter % 2500 == 0: 
+                scores = []
+                # Perform meta-validation and save model state
+                for val_iter in range(600):
+                    vbatch = next(mval_iterator)[0]
+                    vbatch = self.process_task(batch)
+                    vx_spt, vy_spt, vx_qry, vy_qry = [x[0].to(device=self.device) for x in vbatch]
+                    vacc = self.turtle.evaluate(vx_spt, vy_spt, vx_qry, vy_qry)
+                    scores.append(vacc)
+                val_accuracy = np.mean(scores)
+                iter_time = time.time() - start_time
+                logging.info(f'[Meta-iteration {meta_iter}] Val acc: {val_accuracy:.3f} | Time: {iter_time:.2f}')
+                self.turtle.store_file(os.path.join('trained_models/feedback/turtle/models', f'{meta_iter}'))
             
-        print("Got out of the infinite loop. ")
-        
-        for epoch in range(self.meta_iterations):
-            if epoch % 20 == 0 : 
-                # Save something
-                pass
-                #tmp_learner = MyLearner(self.meta_learner)
-                #tmp_learner.save(os.path.join('trained_models/feedback/maml_torch/models', 'epoch{}'.format(epoch)))
-            #self.train(mtrain_iterator, self.meta_learner, self.device, self.meta_opt, epoch, log)
-            
-            batch = next(mval_iterator)
-            batch = batch[0]
-            batch = self.process_task(batch)
-            print(batch[0].size())
-            x_spt, y_spt, x_qry, y_qry = [x[0].to(device=self.device) for x in batch]
-            print(x_spt.size(), y_spt.size(), x_qry.size(), y_qry.size())
-            print(self.meta_iterations, self.meta_batch_size, self.support_batch_size, self.query_batch_size, self.N_ways)
-            import sys; sys.exit()
-
-
-
-
-        return MyLearner(self.meta_learner)
-
-    def train(self, db, net, device, meta_opt, epoch, log):
-        net.train()
-        #n_train_iter = db.x_train.shape[0] // db.batchsz
-        n_train_iter = 10
-        for batch_idx in range(n_train_iter):
-            start_time = time.time()
-            # Sample a batch of support and query images and labels.
-            batch = next(db)
-            batch = batch[0]
+            batch = next(mtrain_iterator)[0]
             batch = self.process_task(batch)
             x_spt, y_spt, x_qry, y_qry = [x[0].to(device=self.device) for x in batch]
-
-            # Call train() function of TURTLE object
             self.turtle.train(x_spt, y_spt, x_qry, y_qry)
 
-
-            i = epoch + float(batch_idx) / n_train_iter
-            iter_time = time.time() - start_time
-            if batch_idx % 4 == 0:
-                logging.info(
-                    f'[Epoch {i:.2f}] Train Loss: {qry_losses:.2f} | Acc: {qry_accs:.2f} | Time: {iter_time:.2f}'
-                )
-
-            log.append({
-                'epoch': i,
-                'loss': qry_losses,
-                'acc': qry_accs,
-                'mode': 'train',
-                'time': time.time(),
-            })
-
+        return MyLearner(self.turtle)
 
 @gin.configurable
 class MyLearner(Learner):
