@@ -190,12 +190,12 @@ class MyMetaLearner(MetaLearner):
                     vbatch = next(mval_iterator)[0]
                     vbatch = self.process_task(vbatch)
                     vx_spt, vy_spt, vx_qry, vy_qry = [x[0].to(device=self.device) for x in vbatch]
-                    print("val:", vy_spt.size(), vy_qry.size())
+                    # print("val:", vy_spt.size(), vy_qry.size())
                     vacc = self.turtle.evaluate(vx_spt, vy_spt, vx_qry, vy_qry)
                     scores.append(vacc)
-                    del vx_spt; del vy_spt; del vx_qry; del vy_qry
-                    if torch.cuda.is_available():
-                        torch.cuda.empty_cache() 
+                    # del vx_spt; del vy_spt; del vx_qry; del vy_qry
+                    # if torch.cuda.is_available():
+                    #     torch.cuda.empty_cache() 
                 val_accuracy = np.mean(scores)
                 iter_time = time.time() - start_time
                 logging.info(f'[Meta-iteration {meta_iter}] Val acc: {val_accuracy:.3f} | Time: {iter_time:.2f}')
@@ -204,7 +204,7 @@ class MyMetaLearner(MetaLearner):
             batch = next(mtrain_iterator)[0]
             batch = self.process_task(batch)
             x_spt, y_spt, x_qry, y_qry = [x[0].to(device=self.device) for x in batch]
-            print("train", y_spt.size(), y_qry.size())
+            #print("train", y_spt.size(), y_qry.size())
             self.turtle.train(x_spt, y_spt, x_qry, y_qry)
             break
 
