@@ -4,11 +4,6 @@ MyMetaLearner.meta_batch_size = 1
 MyMetaLearner.meta_iterations = 60000
 MyMetaLearner.N_ways = 5
 
-# Learner parameters 
-MyLearner.img_size = 28
-MyLearner.num_epochs = 1
-MyLearner.lr = 0.1
-
 # Handling episodes data
 MyMetaLearner.support_batch_size = 5
 MyMetaLearner.query_batch_size = 50
