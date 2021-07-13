@@ -237,27 +237,31 @@ class MyLearner(Learner):
         self.query_batch_size = query_batch_size
         self.img_size = img_size
         self.N_ways = N_ways
-        self.device = TURTLE_CONF["dev"]
+        
         
         if turtle == None:
+            self.device = set_device()
+            
             self.baselearner_args = {
-            "dev": self.device,
-            "train_classes": self.N_ways,
-            "eval_classes": self.N_ways,
-            "criterion":nn.CrossEntropyLoss(),
-            "num_blocks": 4,
-            "img_size": (1, 3, self.img_size, self.img_size)
+                "dev": self.device,
+                "train_classes": self.N_ways,
+                "eval_classes": self.N_ways,
+                "criterion":nn.CrossEntropyLoss(),
+                "num_blocks": 4,
+                "img_size": (1, 3, self.img_size, self.img_size)
             }
 
+            TURTLE_CONF["dev"] = self.device
             TURTLE_CONF["baselearner_args"] = self.baselearner_args
             TURTLE_CONF["train_batch_size"] = self.N_ways * self.support_batch_size
             TURTLE_CONF["test_batch_size"] = self.N_ways * self.query_batch_size
             self.turtle = Turtle(**TURTLE_CONF)
         else:
             self.turtle = turtle
+            self.device = self.turtle.dev
 
-    def __call__(self, imgs):
-        return self.learner(imgs)
+    # def __call__(self, imgs):
+    #     return self.learner(imgs)
 
     def process_task(self, images, labels):
         """
@@ -331,7 +335,7 @@ class MyPredictor(Predictor):
         """
         super().__init__()
         self.network = network
-        self.parameters = parameters
+        self.parameters = [x.clone().detach() for x in parameters]
         self.device = self.parameters[0].device
 
     def process_imgs(self, images):
@@ -363,8 +367,7 @@ class MyPredictor(Predictor):
         self.network.eval()
         for images in dataset_test:
             images = self.process_imgs(images[0]).to(self.device)
-            with torch.no_grad():
-                qry_logits = self.network.forward_weights(images, self.parameters)
+            qry_logits = self.network.forward_weights(images, self.parameters).detach()
         return qry_logits
 
 
