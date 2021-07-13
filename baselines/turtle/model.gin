@@ -7,10 +7,10 @@ MyMetaLearner.support_batch_size = 5
 MyMetaLearner.query_batch_size = 50
 
 # Learner
-Learner.img_size = 28
-Learner.meta_batch_size = 1
-Learner.meta_iterations = 60000
-Learner.N_ways = 5
-Learner.support_batch_size = 5
-Learner.query_batch_size = 50
+MyLearner.img_size = 28
+MyLearner.meta_batch_size = 1
+MyLearner.meta_iterations = 60000
+MyLearner.N_ways = 5
+MyLearner.support_batch_size = 5
+MyLearner.query_batch_size = 50
 
