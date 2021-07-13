@@ -197,7 +197,7 @@ class MyMetaLearner(MetaLearner):
                 val_accuracy = np.mean(scores)
                 iter_time = time.time() - start_time
                 logging.info(f'[Meta-iteration {meta_iter}] Val acc: {val_accuracy:.3f} | Time: {iter_time:.2f}')
-                self.turtle.store_file(os.path.join('trained_models/feedback/turtle/models', f'{meta_iter}'))
+                self.turtle.store_file(os.path.join('trained_models/feedback/turtle/models', f'{meta_iter}.pkl'))
             
             batch = next(mtrain_iterator)[0]
             batch = self.process_task(batch)
