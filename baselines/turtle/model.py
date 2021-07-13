@@ -188,7 +188,7 @@ class MyMetaLearner(MetaLearner):
             if meta_iter % 2500 == 0: 
                 scores = []
                 # Perform meta-validation and save model state
-                for val_iter in range(600):
+                for val_iter in range(2):
                     vbatch = next(mval_iterator)[0]
                     vbatch = self.process_task(vbatch)
                     vx_spt, vy_spt, vx_qry, vy_qry = [x[0].to(device=self.device) for x in vbatch]
