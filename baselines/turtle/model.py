@@ -213,8 +213,14 @@ class MyLearner(Learner):
     methods.
     """
     def __init__(self, 
-                turtle,
-                device):
+                meta_iterations,
+                meta_batch_size,
+                support_batch_size,
+                query_batch_size,
+                img_size,
+                N_ways,
+                turtle=None,
+                device=None):
         """
         Args:
             neural_net : a keras.Sequential object. A neural network model to 
@@ -227,8 +233,30 @@ class MyLearner(Learner):
                         (img_size,img_size,3)
         """
         super().__init__()
-        self.device = device
-        self.turtle = turtle
+        self.meta_iterations = meta_iterations
+        self.meta_batch_size = meta_batch_size
+        self.support_batch_size = support_batch_size
+        self.query_batch_size = query_batch_size
+        self.img_size = img_size
+        self.N_ways = N_ways
+        self.device = set_device()
+        
+        if turtle == None:
+            self.baselearner_args = {
+            "dev": set_device(),
+            "train_classes": self.N_ways,
+            "eval_classes": self.N_ways,
+            "criterion":nn.CrossEntropyLoss(),
+            "num_blocks": 4,
+            "img_size": (1, 3, self.img_size, self.img_size)
+            }
+
+            TURTLE_CONF["baselearner_args"] = self.baselearner_args
+            TURTLE_CONF["train_batch_size"] = self.N_ways * self.support_batch_size
+            TURTLE_CONF["test_batch_size"] = self.N_ways * self.query_batch_size
+            self.turtle = Turtle(**TURTLE_CONF)
+        else:
+            self.turtle = turtle
 
     def __call__(self, imgs):
         return self.learner(imgs)
@@ -288,7 +316,7 @@ class MyLearner(Learner):
                 + ' check that its path is valid.'))
 
         ckpt_path = os.path.join(model_dir, 'learner.pt')
-        self.learner.load_state_dict(torch.load(ckpt_path))
+        self.turtle.read_file(ckpt_path)
         
     def save(self, model_dir):
         """Saves the learner model into a pickle file.
@@ -304,8 +332,7 @@ class MyLearner(Learner):
             #    + ' check that its path is valid.'))
 
         ckpt_file = os.path.join(model_dir, 'learner.pt')
-        torch.save(self.learner.state_dict(), ckpt_file)
-
+        self.turtle.store_file(ckpt_file)
         
 ####### Predictor ########
 @gin.configurable
