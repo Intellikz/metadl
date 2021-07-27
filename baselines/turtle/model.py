@@ -109,8 +109,9 @@ class MyMetaLearner(MetaLearner):
         self.query_batch_size = query_batch_size
         self.img_size = img_size
         self.N_ways = N_ways
+        TURTLE_CONF["dev"] = set_device()
         self.device = TURTLE_CONF["dev"]
-
+        
         self.baselearner_args = {
             "dev": self.device,
             "train_classes": self.N_ways,
