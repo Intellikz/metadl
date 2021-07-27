@@ -18,6 +18,7 @@ import datetime
 import pickle
 import numpy as np
 import os 
+import subprocess
 
 import gin
 import torch 
@@ -126,7 +127,12 @@ class MyMetaLearner(MetaLearner):
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(1234)
         np.random.seed(1234)
+
+
+        print("before initializing TURTLE:", subprocess.check_output(['nvidia-smi']))
         self.turtle = Turtle(**TURTLE_CONF)
+        print("-"*50)
+        print("after initializing TURTLE:", subprocess.check_output(['nvidia-smi']))
 
 
     def dataloader(self, dataset_episodic):
@@ -178,7 +184,7 @@ class MyMetaLearner(MetaLearner):
         mtrain_iterator = meta_train_dataset.__iter__()
         mval_iterator = meta_valid_dataset.__iter__()
 
-
+        print("start of ingestion (creating dataset objects):", subprocess.check_output(['nvidia-smi']))
         log = []
         start_time = time.time()
 

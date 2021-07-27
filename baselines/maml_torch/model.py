@@ -17,11 +17,13 @@ import logging
 import datetime
 import pickle
 import numpy as np
-import pandas as pd
 import os 
 
 import gin
-import higher
+try:
+    import higher
+except:
+     os.system("pip install higher")
 import torch 
 from torch import nn
 import torch.nn.functional as F
