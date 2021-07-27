@@ -129,10 +129,10 @@ class MyMetaLearner(MetaLearner):
         np.random.seed(1234)
 
 
-        print("before initializing TURTLE:", subprocess.check_output(['nvidia-smi']))
+        print("before initializing TURTLE:", subprocess.check_output(['nvidia-smi']).decode("utf-8"))
         self.turtle = Turtle(**TURTLE_CONF)
         print("-"*50)
-        print("after initializing TURTLE:", subprocess.check_output(['nvidia-smi']))
+        print("after initializing TURTLE:", subprocess.check_output(['nvidia-smi']).decode("utf-8"))
 
 
     def dataloader(self, dataset_episodic):
@@ -184,7 +184,7 @@ class MyMetaLearner(MetaLearner):
         mtrain_iterator = meta_train_dataset.__iter__()
         mval_iterator = meta_valid_dataset.__iter__()
 
-        print("start of ingestion (creating dataset objects):", subprocess.check_output(['nvidia-smi']))
+        print("start of ingestion (creating dataset objects):", subprocess.check_output(['nvidia-smi']).decode("utf-8"))
         log = []
         start_time = time.time()
 
